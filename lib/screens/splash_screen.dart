@@ -51,52 +51,52 @@ class _SplashScreenState extends State<SplashScreen> {
           Positioned(
             top: mq.height * .08,
             left: mq.width * .80,
-            child: AnimatedEmoji(size: 35, AnimatedEmojis.smile),
+            child: const AnimatedEmoji(size: 35, AnimatedEmojis.smile),
           ),
           Positioned(
             top: mq.height * .19,
             left: mq.width * .03,
-            child: AnimatedEmoji(size: 45, AnimatedEmojis.clapLight),
+            child: const AnimatedEmoji(size: 45, AnimatedEmojis.clapLight),
           ),
           Positioned(
             top: mq.height * .26,
             left: mq.width * .83,
-            child: AnimatedEmoji(size: 40, AnimatedEmojis.redHeart),
+            child: const AnimatedEmoji(size: 40, AnimatedEmojis.redHeart),
           ),
           Positioned(
             top: mq.height * .38,
             left: mq.width * .14,
-            child: AnimatedEmoji(size: 39, AnimatedEmojis.wink),
+            child: const AnimatedEmoji(size: 39, AnimatedEmojis.wink),
           ),
           Positioned(
             top: mq.height * .54,
             left: mq.width * .20,
-            child: AnimatedEmoji(size: 49, AnimatedEmojis.astonished),
+            child: const AnimatedEmoji(size: 49, AnimatedEmojis.astonished),
           ),
           Positioned(
             top: mq.height * .04,
             left: mq.width * .27,
-            child: AnimatedEmoji(size: 50, AnimatedEmojis.ghost),
+            child: const AnimatedEmoji(size: 50, AnimatedEmojis.ghost),
           ),
           Positioned(
             top: mq.height * .48,
             left: mq.width * .55,
-            child: AnimatedEmoji(size: 46, AnimatedEmojis.sunglassesFace),
+            child: const AnimatedEmoji(size: 46, AnimatedEmojis.sunglassesFace),
           ),
           Positioned(
             top: mq.height * .58,
             left: mq.width * .79,
-            child: AnimatedEmoji(size: 38, AnimatedEmojis.crossedFingers),
+            child: const AnimatedEmoji(size: 38, AnimatedEmojis.crossedFingers),
           ),
           Positioned(
             top: mq.height * .75,
             left: mq.width * .80,
-            child: AnimatedEmoji(size: 39, AnimatedEmojis.birthdayCake),
+            child: const AnimatedEmoji(size: 39, AnimatedEmojis.birthdayCake),
           ),
           Positioned(
             top: mq.height * .74,
             left: mq.width * .12,
-            child: AnimatedEmoji(size: 36, AnimatedEmojis.foldedHands),
+            child: const AnimatedEmoji(size: 36, AnimatedEmojis.foldedHands),
           ),
           Positioned(
             bottom: mq.height * .15,

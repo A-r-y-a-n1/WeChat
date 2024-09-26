@@ -3,6 +3,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:lets_chat/api/api.dart';
+import 'package:lets_chat/helper/dialoges.dart';
+import 'package:lets_chat/main.dart';
 import 'package:lets_chat/models/chat_user.dart';
 import 'package:lets_chat/screens/profile_screen.dart';
 import '../widgets/chat_user_card.dart';
@@ -41,6 +43,7 @@ class _HomeScreenState extends State<HomeScreen>
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
+      // ignore: deprecated_member_use
       child: WillPopScope(
         onWillPop: () {
           if (_isSearching) {
@@ -105,25 +108,15 @@ class _HomeScreenState extends State<HomeScreen>
               const SizedBox(width: 9)
             ],
           ),
-          // floatingActionButton: FloatingActionButton.extended(
-          //   onPressed: () async {
-          //     dialogs.showProgressBar(context);
-
-          //     await APIs.auth.signOut().then((value) async {
-          //       await GoogleSignIn().signOut().then((value) {
-          //         //replacing home screen with login screen
-          //         Navigator.pushReplacement(context,
-          //             MaterialPageRoute(builder: (_) => const LoginScreen()));
-          //       });
-          //     });
-          //   },
-          //   backgroundColor: Colors.redAccent,
-          //   // icon: const Icon(Icons.login_outlined),
-          //   label: const Text(
-          //     "Logout",
-          //     style: TextStyle(color: Colors.white),
-          //   ),
-          // ),
+          floatingActionButton: Padding(
+            padding: const EdgeInsets.only(bottom: 10),
+            child: FloatingActionButton(
+              onPressed: () {
+                _addChatUserDialog();
+              },
+              child: const Icon(Icons.add_rounded),
+            ),
+          ),
           body: AnimatedBackground(
             vsync: this,
             behaviour: RandomParticleBehaviour(
@@ -138,38 +131,64 @@ class _HomeScreenState extends State<HomeScreen>
                     minOpacity: 0.8,
                     spawnMinSpeed: 10)),
             child: StreamBuilder(
-              stream: APIs.getAllUsers(),
+              stream: APIs.getMyUsersId(),
+
+              //get id of only known users
               builder: (context, snapshot) {
                 switch (snapshot.connectionState) {
+                  //if data is loading
                   case ConnectionState.waiting:
                   case ConnectionState.none:
-                    return const Center(child: CircularProgressIndicator());
+                  // return const Center(child: CircularProgressIndicator());
+
+                  //if some or all data is loaded then show it
                   case ConnectionState.active:
                   case ConnectionState.done:
-                    final data = snapshot.data?.docs;
-                    _list = data
-                            ?.map((e) => ChatUser.fromJson(e.data()))
-                            .toList() ??
-                        [];
+                    return StreamBuilder(
+                      stream: APIs.getAllUsers(
+                          snapshot.data?.docs.map((e) => e.id).toList() ?? []),
 
-                    if (_list.isNotEmpty) {
-                      return ListView.builder(
-                          itemCount:
-                              _isSearching ? _searchList.length : _list.length,
-                          physics: const BouncingScrollPhysics(),
-                          itemBuilder: (context, index) {
-                            return ChatUserCard(
-                                user: _isSearching
-                                    ? _searchList[index]
-                                    : _list[index]);
-                          });
-                    } else {
-                      return const Center(
-                          child: Text(
-                        "No Connections Found",
-                        style: TextStyle(fontSize: 22),
-                      ));
-                    }
+                      //get only those user, who's ids are provided
+                      builder: (context, snapshot) {
+                        switch (snapshot.connectionState) {
+                          //if data is loading
+                          case ConnectionState.waiting:
+                          case ConnectionState.none:
+                          // return const Center(
+                          //     child: CircularProgressIndicator());
+
+                          //if some or all data is loaded then show it
+                          case ConnectionState.active:
+                          case ConnectionState.done:
+                            final data = snapshot.data?.docs;
+                            _list = data
+                                    ?.map((e) => ChatUser.fromJson(e.data()))
+                                    .toList() ??
+                                [];
+
+                            if (_list.isNotEmpty) {
+                              return ListView.builder(
+                                  itemCount: _isSearching
+                                      ? _searchList.length
+                                      : _list.length,
+                                  padding:
+                                      EdgeInsets.only(top: mq.height * .01),
+                                  physics: const BouncingScrollPhysics(),
+                                  itemBuilder: (context, index) {
+                                    return ChatUserCard(
+                                        user: _isSearching
+                                            ? _searchList[index]
+                                            : _list[index]);
+                                  });
+                            } else {
+                              return const Center(
+                                child: Text('No Connections Found!',
+                                    style: TextStyle(fontSize: 20)),
+                              );
+                            }
+                        }
+                      },
+                    );
                 }
               },
             ),
@@ -177,5 +196,58 @@ class _HomeScreenState extends State<HomeScreen>
         ),
       ),
     );
+  }
+
+  void _addChatUserDialog() {
+    String email = '';
+    showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+              contentPadding: const EdgeInsets.only(
+                  left: 24, right: 24, top: 20, bottom: 10),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20)),
+              title: const Row(children: [
+                Icon(
+                  Icons.person_add,
+                  color: Colors.blue,
+                  size: 28,
+                ),
+                Text("Add User")
+              ]),
+              content: TextFormField(
+                maxLines: null,
+                onChanged: (value) => email = value,
+                decoration: InputDecoration(
+                    hintText: 'Email Id',
+                    prefixIcon: const Icon(Icons.email, color: Colors.blue),
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10))),
+              ),
+              actions: [
+                MaterialButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: const Text('Cancel',
+                      style: TextStyle(color: Colors.blue, fontSize: 16)),
+                ),
+                MaterialButton(
+                  onPressed: () async {
+                    Navigator.pop(context);
+                    if (email.isNotEmpty) {
+                      await APIs.addChatUser(email).then((value) {
+                        if (!value) {
+                          dialogs.showSnackbar(
+                              context as String, 'user does not exist');
+                        }
+                      });
+                    }
+                  },
+                  child: const Text('Add',
+                      style: TextStyle(color: Colors.blue, fontSize: 16)),
+                )
+              ],
+            ));
   }
 }

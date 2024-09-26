@@ -36,6 +36,7 @@ class _ChatScreenState extends State<ChatScreen> {
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: SafeArea(
+        // ignore: deprecated_member_use
         child: WillPopScope(
           onWillPop: () {
             if (_showEmoji) {
@@ -50,7 +51,7 @@ class _ChatScreenState extends State<ChatScreen> {
           child: Scaffold(
             appBar: AppBar(
               systemOverlayStyle:
-                  SystemUiOverlayStyle(statusBarColor: Colors.white),
+                  const SystemUiOverlayStyle(statusBarColor: Colors.white),
               backgroundColor: Colors.white70,
               automaticallyImplyLeading: false,
               flexibleSpace: _appBar(),
@@ -257,7 +258,13 @@ class _ChatScreenState extends State<ChatScreen> {
           MaterialButton(
             onPressed: () {
               if (_textController.text.isNotEmpty) {
-                APIs.sendMessage(widget.user, _textController.text, Type.text);
+                if (_list.isEmpty) {
+                  APIs.sendFirstMessage(
+                      widget.user, _textController.text, Type.text);
+                } else {
+                  APIs.sendMessage(
+                      widget.user, _textController.text, Type.text);
+                }
                 _textController.text = '';
               }
             },
