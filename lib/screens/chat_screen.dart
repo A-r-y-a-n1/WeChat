@@ -1,3 +1,4 @@
+import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:flutter/material.dart';
@@ -24,11 +25,13 @@ class ChatScreen extends StatefulWidget {
 class _ChatScreenState extends State<ChatScreen> {
   List<Message> _list = [];
   final _textController = TextEditingController();
+  ScrollController scrollController = ScrollController();
   bool _showEmoji = false;
 
   @override
   void initState() {
     super.initState();
+    setState(() {});
   }
 
   @override
@@ -36,6 +39,7 @@ class _ChatScreenState extends State<ChatScreen> {
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: SafeArea(
+        // ignore: deprecated_member_use
         child: WillPopScope(
           onWillPop: () {
             if (_showEmoji) {
@@ -50,7 +54,7 @@ class _ChatScreenState extends State<ChatScreen> {
           child: Scaffold(
             appBar: AppBar(
               systemOverlayStyle:
-                  SystemUiOverlayStyle(statusBarColor: Colors.white),
+                  const SystemUiOverlayStyle(statusBarColor: Colors.white),
               backgroundColor: Colors.white70,
               automaticallyImplyLeading: false,
               flexibleSpace: _appBar(),
@@ -58,15 +62,10 @@ class _ChatScreenState extends State<ChatScreen> {
             // backgroundColor: Colors.black,
             body: Container(
               decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                begin: Alignment.topRight,
-                end: Alignment.bottomLeft,
+                  gradient: RadialGradient(
                 colors: [
-                  Colors.teal,
-                  Colors.teal,
-                  Colors.indigo,
-                  Colors.red,
-                  Colors.yellow,
+                  Color.fromARGB(255, 146, 199, 241),
+                  Color.fromARGB(255, 193, 220, 232),
                 ],
               )),
               child: Column(children: [
@@ -96,12 +95,26 @@ class _ChatScreenState extends State<ChatScreen> {
                                   return MessageCard(message: _list[index]);
                                 });
                           } else {
-                            return const Center(
-                                child: Text(
-                              "Say Hii 👋👋",
-                              style: TextStyle(
-                                  fontSize: 30, fontWeight: FontWeight.bold),
-                            ));
+                            return Center(
+                                child: DefaultTextStyle(
+                                    style: const TextStyle(
+                                        fontSize: 22,
+                                        letterSpacing: 1.6,
+                                        color: Colors.black,
+                                        fontFamily: 'Agne',
+                                        fontWeight: FontWeight.bold),
+                                    child: AnimatedTextKit(
+                                      animatedTexts: [
+                                        TypewriterAnimatedText(
+                                            'For extra features about text'),
+                                        TypewriterAnimatedText(
+                                            'Remove keyboard and then'),
+                                        TypewriterAnimatedText(
+                                            'Long press on it'),
+                                        TypewriterAnimatedText('Say Hii 👋👋'),
+                                      ],
+                                      totalRepeatCount: 1,
+                                    )));
                           }
                       }
                     },
@@ -221,8 +234,15 @@ class _ChatScreenState extends State<ChatScreen> {
                       size: 26,
                     )),
                 Expanded(
+                    child: MediaQuery.removePadding(
+                  context: context,
+                  removeTop: true,
+                  removeBottom: true,
+                  child: Scrollbar(
+                    thumbVisibility: true,
                     child: TextField(
                         controller: _textController,
+                        scrollController: scrollController,
                         keyboardType: TextInputType.multiline,
                         onTap: () {
                           if (_showEmoji) {
@@ -231,11 +251,14 @@ class _ChatScreenState extends State<ChatScreen> {
                             });
                           }
                         },
-                        maxLines: null,
+                        maxLines: 5,
+                        minLines: 1,
                         decoration: const InputDecoration(
                             hintText: "Type your message",
                             hintStyle: TextStyle(
-                                color: Color.fromARGB(255, 15, 161, 246))))),
+                                color: Color.fromARGB(255, 15, 161, 246)))),
+                  ),
+                )),
                 IconButton(
                     onPressed: () async {
                       final ImagePicker picker = ImagePicker();
@@ -257,14 +280,21 @@ class _ChatScreenState extends State<ChatScreen> {
           MaterialButton(
             onPressed: () {
               if (_textController.text.isNotEmpty) {
-                APIs.sendMessage(widget.user, _textController.text, Type.text);
+                _textController.text = _textController.text.trim();
+                if (_list.isEmpty) {
+                  APIs.sendFirstMessage(
+                      widget.user, _textController.text, Type.text);
+                } else {
+                  APIs.sendMessage(
+                      widget.user, _textController.text, Type.text);
+                }
                 _textController.text = '';
               }
             },
             minWidth: 0,
             shape: const CircleBorder(),
             padding: const EdgeInsets.fromLTRB(10, 10, 5, 10),
-            color: Colors.lightGreen,
+            color: const Color.fromARGB(255, 190, 239, 137),
             child: const Icon(
               Icons.send,
               color: Color.fromARGB(255, 15, 161, 246),

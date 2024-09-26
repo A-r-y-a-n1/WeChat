@@ -158,8 +158,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           shape: const StadiumBorder(),
                           minimumSize: Size(mq.width * .5, mq.height * .058)),
                       onPressed: () {
-                        ScaffoldMessenger.of(context as BuildContext)
-                            .showSnackBar(SnackBar(
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                           duration: const Duration(milliseconds: 700),
                           content: const Text(
                             "Profile Updated Successfully",
@@ -232,7 +231,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                           APIs.updateProfilePicture(File(_image!));
                           // for hiding bottom sheet
-                          Navigator.pop(context as BuildContext);
+                          if (!context.mounted) return;
+                          Navigator.of(context).pop();
                         }
                       },
                       child: Image.asset('images/gallery.png')),
