@@ -1,14 +1,23 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:we_chat/screens/auth/login_screen.dart';
+import 'package:flutter/services.dart';
+import 'package:lets_chat/screens/splash_screen.dart';
 
 import 'firebase_options.dart';
 
 late Size mq;
 
 void main() {
-  _initializeFirebase();
-  runApp(const MyApp());
+  WidgetsFlutterBinding.ensureInitialized();
+  SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+  SystemChrome.setSystemUIOverlayStyle(
+      const SystemUiOverlayStyle(statusBarColor: Colors.white));
+  SystemChrome.setPreferredOrientations(
+          [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown])
+      .then((value) {
+    _initializeFirebase();
+    runApp(const MyApp());
+  });
 }
 
 class MyApp extends StatelessWidget {
@@ -19,10 +28,12 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Flutter Demo',
+      title: 'Let\'s Chat!!',
       theme: ThemeData(
         iconTheme: const IconThemeData(color: Colors.black),
         appBarTheme: const AppBarTheme(
+          systemOverlayStyle:
+              SystemUiOverlayStyle(statusBarColor: Colors.white),
           centerTitle: true,
           elevation: 2.5,
           titleTextStyle: TextStyle(
@@ -30,7 +41,7 @@ class MyApp extends StatelessWidget {
         ),
         useMaterial3: true,
       ),
-      home: LoginScreen(),
+      home: const SplashScreen(),
       // home: const MyHomePage(title: 'Flutter Demo Home Page'),
     );
   }
